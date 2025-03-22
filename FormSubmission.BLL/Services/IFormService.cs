@@ -1,7 +1,7 @@
+using FormSubmission.BLL.DTO;
 using FormSubmission.Core.Models;
-using FormSubmissionService.DTO;
 
-namespace FormSubmissionService.Services
+namespace FormSubmission.BLL.Services
 {
     public interface IFormService
     {

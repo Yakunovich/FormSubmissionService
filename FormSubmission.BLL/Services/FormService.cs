@@ -1,10 +1,10 @@
+using FormSubmission.BLL.DTO;
 using FormSubmission.Core.Interfaces;
 using FormSubmission.Core.Models;
 using FormSubmission.Core.Models.Parameters;
-using FormSubmissionService.DTO;
 using System.Text.Json;
 
-namespace FormSubmissionService.Services
+namespace FormSubmission.BLL.Services
 {
     public class FormService : IFormService
     {

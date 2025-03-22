@@ -1,7 +1,7 @@
 using FormSubmission.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace FormSubmissionService.Data
+namespace FormSubmission.DAL.Data
 {
     public class FormDbContext : DbContext
     {

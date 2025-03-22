@@ -1,4 +1,4 @@
-namespace FormSubmissionService.Configuration
+namespace FormSubmission.DAL.Configuration
 {
     public class DatabaseSettings
     {

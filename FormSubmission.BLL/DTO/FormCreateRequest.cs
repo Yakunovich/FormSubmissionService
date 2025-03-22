@@ -1,4 +1,4 @@
-namespace FormSubmissionService.Models
+namespace FormSubmission.BLL.DTO
 {
     public class FormCreateRequest
     {

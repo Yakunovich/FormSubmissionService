@@ -1,6 +1,6 @@
 using FormSubmission.Core.Constants;
 
-namespace FormSubmissionService.DTO
+namespace FormSubmission.BLL.DTO
 {
     public class FormSearchRequest
     {

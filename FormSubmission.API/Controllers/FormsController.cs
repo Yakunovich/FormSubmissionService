@@ -1,9 +1,9 @@
+using FormSubmission.BLL.DTO;
+using FormSubmission.BLL.Services;
 using FormSubmission.Core.Models;
-using FormSubmissionService.DTO;
-using FormSubmissionService.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FormSubmissionService.Controllers
+namespace FormSubmission.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

@@ -1,22 +1,18 @@
-using FormSubmission.Core.Interfaces;
-using FormSubmissionService.Configuration;
-using FormSubmissionService.Data;
-using FormSubmissionService.Repositories;
-using FormSubmissionService.Services;
-using Microsoft.EntityFrameworkCore;
+using FormSubmission.BLL.Extensions;
+using FormSubmission.DAL.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
 
-namespace FormSubmissionService.Extensions
+namespace FormSubmission.API.Extensions
 {
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IFormRepository, FormRepository>();
+            services.AddDataAccessLayer(configuration);
             
-            services.AddScoped<IFormService, FormService>();
+            services.AddBusinessLogicLayer();
             
             return services;
         }
@@ -31,28 +27,6 @@ namespace FormSubmissionService.Extensions
                            .AllowAnyMethod()
                            .AllowAnyHeader();
                 });
-            });
-            
-            return services;
-        }
-        
-        public static IServiceCollection AddApplicationDbContext(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.Configure<DatabaseSettings>(
-                configuration.GetSection(DatabaseSettings.SectionName));
-
-            var databaseSettings = configuration
-                .GetSection(DatabaseSettings.SectionName)
-                .Get<DatabaseSettings>();
-
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-            services.AddDbContext<FormDbContext>(options =>
-            {
-                if (databaseSettings?.Provider == "InMemory")
-                {
-                    options.UseInMemoryDatabase(connectionString);
-                }
             });
             
             return services;
