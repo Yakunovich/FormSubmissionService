@@ -2,11 +2,12 @@ using FormSubmissionService.Models;
 
 namespace FormSubmissionService.Services
 {
+    //IServiceCollectionExtention
     public interface IFormService
     {
-        Task<FormSubmission> CreateSubmissionAsync(FormSubmissionDto submissionDto);
-        Task<IEnumerable<FormSubmission>> GetAllSubmissionsAsync();
-        Task<FormSubmission?> GetSubmissionByIdAsync(int id);
-        Task<IEnumerable<FormSubmission>> SearchSubmissionsAsync(SearchRequest searchRequest);
+        Task<Form> CreateFormAsync(FormCreateRequest formRequest);
+        Task<IEnumerable<Form>> GetAllFormsAsync();
+        Task<Form?> GetFormByIdAsync(int id);
+        Task<IEnumerable<Form>> SearchFormsAsync(FormSearchRequest searchRequest);
     }
 } 

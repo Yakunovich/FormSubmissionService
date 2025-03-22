@@ -16,41 +16,41 @@ namespace FormSubmissionService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SubmitForm([FromBody] FormSubmissionDto submissionDto)
+        public async Task<IActionResult> CreateForm([FromBody] FormCreateRequest formRequest)
         {
-            if (string.IsNullOrEmpty(submissionDto.FormType))
+            if (string.IsNullOrEmpty(formRequest.FormType))
             {
                 return BadRequest("FormType is required");
             }
 
-            var submission = await _formService.CreateSubmissionAsync(submissionDto);
-            return CreatedAtAction(nameof(GetSubmission), new { id = submission.Id }, submission);
+            var form = await _formService.CreateFormAsync(formRequest);
+            return CreatedAtAction(nameof(GetForm), new { id = form.Id }, form);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllSubmissions()
+        public async Task<IActionResult> GetAllForms()
         {
-            var submissions = await _formService.GetAllSubmissionsAsync();
-            return Ok(submissions);
+            var forms = await _formService.GetAllFormsAsync();
+            return Ok(forms);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSubmission(int id)
+        public async Task<IActionResult> GetForm(int id)
         {
-            var submission = await _formService.GetSubmissionByIdAsync(id);
-            if (submission == null)
+            var form = await _formService.GetFormByIdAsync(id);
+            if (form == null)
             {
                 return NotFound();
             }
 
-            return Ok(submission);
+            return Ok(form);
         }
 
         [HttpPost("search")]
-        public async Task<IActionResult> SearchSubmissions([FromBody] SearchRequest searchRequest)
+        public async Task<IActionResult> SearchForms([FromBody] FormSearchRequest searchRequest)
         {
-            var submissions = await _formService.SearchSubmissionsAsync(searchRequest);
-            return Ok(submissions);
+            var forms = await _formService.SearchFormsAsync(searchRequest);
+            return Ok(forms);
         }
     }
 } 

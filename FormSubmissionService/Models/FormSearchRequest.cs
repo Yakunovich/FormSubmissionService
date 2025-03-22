@@ -1,6 +1,6 @@
 namespace FormSubmissionService.Models
 {
-    public class SearchRequest
+    public class FormSearchRequest
     {
         public string? FormType { get; set; }
         public string? SearchTerm { get; set; }

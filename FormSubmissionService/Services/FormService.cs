@@ -14,59 +14,59 @@ namespace FormSubmissionService.Services
             _context = context;
         }
 
-        public async Task<FormSubmission> CreateSubmissionAsync(FormSubmissionDto submissionDto)
+        public async Task<Form> CreateFormAsync(FormCreateRequest formRequest)
         {
-            var submission = new FormSubmission
+            var form = new Form
             {
-                FormType = submissionDto.FormType,
-                FormData = JsonSerializer.Serialize(submissionDto.FormData),
+                FormType = formRequest.FormType,
+                FormData = JsonSerializer.Serialize(formRequest.FormData),
                 SubmittedAt = DateTime.UtcNow
             };
 
-            _context.FormSubmissions.Add(submission);
+            _context.Forms.Add(form);
             await _context.SaveChangesAsync();
 
-            return submission;
+            return form;
         }
 
-        public async Task<IEnumerable<FormSubmission>> GetAllSubmissionsAsync()
+        public async Task<IEnumerable<Form>> GetAllFormsAsync()
         {
-            return await _context.FormSubmissions
-                .OrderByDescending(s => s.SubmittedAt)
+            return await _context.Forms
+                .OrderByDescending(f => f.SubmittedAt)
                 .ToListAsync();
         }
 
-        public async Task<FormSubmission?> GetSubmissionByIdAsync(int id)
+        public async Task<Form?> GetFormByIdAsync(int id)
         {
-            return await _context.FormSubmissions.FindAsync(id);
+            return await _context.Forms.FindAsync(id);
         }
 
-        public async Task<IEnumerable<FormSubmission>> SearchSubmissionsAsync(SearchRequest searchRequest)
+        public async Task<IEnumerable<Form>> SearchFormsAsync(FormSearchRequest searchRequest)
         {
-            var query = _context.FormSubmissions.AsQueryable();
+            var query = _context.Forms.AsQueryable();
 
             if (!string.IsNullOrEmpty(searchRequest.FormType))
             {
-                query = query.Where(s => s.FormType == searchRequest.FormType);
+                query = query.Where(f => f.FormType == searchRequest.FormType);
             }
     
             if (searchRequest.FromDate.HasValue)
             {
-                query = query.Where(s => s.SubmittedAt >= searchRequest.FromDate.Value);
+                query = query.Where(f => f.SubmittedAt >= searchRequest.FromDate.Value);
             }
 
             if (searchRequest.ToDate.HasValue)
             {
-                query = query.Where(s => s.SubmittedAt <= searchRequest.ToDate.Value);
+                query = query.Where(f => f.SubmittedAt <= searchRequest.ToDate.Value);
             }
 
             if (!string.IsNullOrEmpty(searchRequest.SearchTerm))
             {
-                query = query.Where(s => s.FormData.Contains(searchRequest.SearchTerm));
+                query = query.Where(f => f.FormData.Contains(searchRequest.SearchTerm));
             }
 
             return await query
-                .OrderByDescending(s => s.SubmittedAt)
+                .OrderByDescending(f => f.SubmittedAt)
                 .Skip((searchRequest.Page - 1) * searchRequest.PageSize)
                 .Take(searchRequest.PageSize)
                 .ToListAsync();

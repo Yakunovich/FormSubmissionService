@@ -9,6 +9,6 @@ namespace FormSubmissionService.Data
         {
         }
 
-        public DbSet<FormSubmission> FormSubmissions { get; set; } = null!;
+        public DbSet<Form> Forms { get; set; } = null!;
     }
 } 

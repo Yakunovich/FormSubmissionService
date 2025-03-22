@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://localhost:5000", "https://localhost:5001");
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -19,7 +17,7 @@ builder.Services.AddCors(options =>
                .AllowAnyHeader();
     });
 });
-
+//
 builder.Services.AddDbContext<FormDbContext>(options =>
     options.UseInMemoryDatabase("FormsDb"));
 
