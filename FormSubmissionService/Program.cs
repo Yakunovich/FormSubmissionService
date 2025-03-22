@@ -1,27 +1,15 @@
+using FormSubmissionService.Configuration;
 using FormSubmissionService.Data;
+using FormSubmissionService.Extensions;
 using FormSubmissionService.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
-//
-builder.Services.AddDbContext<FormDbContext>(options =>
-    options.UseInMemoryDatabase("FormsDb"));
-
-builder.Services.AddScoped<IFormService, FormService>();
+builder.Services.AddControllerConfig();
+builder.Services.AddCorsPolicy();
+builder.Services.AddApplicationDbContext(builder.Configuration);
+builder.Services.AddApplicationServices(builder.Configuration);
 
 var app = builder.Build();
 
