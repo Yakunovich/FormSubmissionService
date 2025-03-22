@@ -1,6 +1,5 @@
 namespace FormSubmissionService.Configuration
 {
-
     public class DatabaseSettings
     {
         public const string SectionName = "Database";

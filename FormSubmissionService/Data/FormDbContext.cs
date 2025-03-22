@@ -1,4 +1,4 @@
-using FormSubmissionService.Models;
+using FormSubmission.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FormSubmissionService.Data

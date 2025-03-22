@@ -1,8 +1,8 @@
-using FormSubmissionService.Models;
+using FormSubmission.Core.Models;
+using FormSubmissionService.DTO;
 
 namespace FormSubmissionService.Services
 {
-    //IServiceCollectionExtention
     public interface IFormService
     {
         Task<Form> CreateFormAsync(FormCreateRequest formRequest);

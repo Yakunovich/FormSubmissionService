@@ -1,5 +1,7 @@
+using FormSubmission.Core.Interfaces;
 using FormSubmissionService.Configuration;
 using FormSubmissionService.Data;
+using FormSubmissionService.Repositories;
 using FormSubmissionService.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +14,8 @@ namespace FormSubmissionService.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IFormRepository, FormRepository>();
+            
             services.AddScoped<IFormService, FormService>();
             
             return services;

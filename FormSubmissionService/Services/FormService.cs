@@ -1,17 +1,18 @@
-using FormSubmissionService.Data;
-using FormSubmissionService.Models;
-using Microsoft.EntityFrameworkCore;
+using FormSubmission.Core.Interfaces;
+using FormSubmission.Core.Models;
+using FormSubmission.Core.Models.Parameters;
+using FormSubmissionService.DTO;
 using System.Text.Json;
 
 namespace FormSubmissionService.Services
 {
     public class FormService : IFormService
     {
-        private readonly FormDbContext _context;
+        private readonly IFormRepository _repository;
 
-        public FormService(FormDbContext context)
+        public FormService(IFormRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         public async Task<Form> CreateFormAsync(FormCreateRequest formRequest)
@@ -23,53 +24,32 @@ namespace FormSubmissionService.Services
                 SubmittedAt = DateTime.UtcNow
             };
 
-            _context.Forms.Add(form);
-            await _context.SaveChangesAsync();
-
-            return form;
+            return await _repository.CreateAsync(form);
         }
 
         public async Task<IEnumerable<Form>> GetAllFormsAsync()
         {
-            return await _context.Forms
-                .OrderByDescending(f => f.SubmittedAt)
-                .ToListAsync();
+            return await _repository.GetAllAsync();
         }
 
         public async Task<Form?> GetFormByIdAsync(int id)
         {
-            return await _context.Forms.FindAsync(id);
+            return await _repository.GetByIdAsync(id);
         }
 
         public async Task<IEnumerable<Form>> SearchFormsAsync(FormSearchRequest searchRequest)
         {
-            var query = _context.Forms.AsQueryable();
-
-            if (!string.IsNullOrEmpty(searchRequest.FormType))
+            var parameters = new FormSearchParameters
             {
-                query = query.Where(f => f.FormType == searchRequest.FormType);
-            }
-    
-            if (searchRequest.FromDate.HasValue)
-            {
-                query = query.Where(f => f.SubmittedAt >= searchRequest.FromDate.Value);
-            }
+                FormType = searchRequest.FormType,
+                SearchTerm = searchRequest.SearchTerm,
+                FromDate = searchRequest.FromDate,
+                ToDate = searchRequest.ToDate,
+                Page = searchRequest.Page,
+                PageSize = searchRequest.PageSize
+            };
 
-            if (searchRequest.ToDate.HasValue)
-            {
-                query = query.Where(f => f.SubmittedAt <= searchRequest.ToDate.Value);
-            }
-
-            if (!string.IsNullOrEmpty(searchRequest.SearchTerm))
-            {
-                query = query.Where(f => f.FormData.Contains(searchRequest.SearchTerm));
-            }
-
-            return await query
-                .OrderByDescending(f => f.SubmittedAt)
-                .Skip((searchRequest.Page - 1) * searchRequest.PageSize)
-                .Take(searchRequest.PageSize)
-                .ToListAsync();
+            return await _repository.SearchAsync(parameters);
         }
     }
 } 
