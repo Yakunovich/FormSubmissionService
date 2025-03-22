@@ -1,4 +1,5 @@
 using FormSubmission.BLL.DTO;
+using FormSubmission.Core.Exceptions;
 using FormSubmission.Core.Interfaces;
 using FormSubmission.Core.Models;
 using FormSubmission.Core.Models.Parameters;
@@ -17,6 +18,11 @@ namespace FormSubmission.BLL.Services
 
         public async Task<Form> CreateFormAsync(FormCreateRequest formRequest)
         {
+            if (string.IsNullOrEmpty(formRequest.FormType))
+            {
+                throw new BadRequestException("FormType is required");
+            }
+
             var form = new Form
             {
                 FormType = formRequest.FormType,
@@ -32,13 +38,30 @@ namespace FormSubmission.BLL.Services
             return await _repository.GetAllAsync();
         }
 
-        public async Task<Form?> GetFormByIdAsync(int id)
+        public async Task<Form> GetFormByIdAsync(int id)
         {
-            return await _repository.GetByIdAsync(id);
+            var form = await _repository.GetByIdAsync(id);
+            
+            if (form == null)
+            {
+                throw new NotFoundException("Form", id);
+            }
+            
+            return form;
         }
 
         public async Task<IEnumerable<Form>> SearchFormsAsync(FormSearchRequest searchRequest)
         {
+            if (searchRequest.Page <= 0)
+            {
+                throw new BadRequestException("Page must be greater than 0");
+            }
+
+            if (searchRequest.PageSize <= 0)
+            {
+                throw new BadRequestException("PageSize must be greater than 0");
+            }
+
             var parameters = new FormSearchParameters
             {
                 FormType = searchRequest.FormType,

@@ -19,11 +19,6 @@ namespace FormSubmission.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateForm([FromBody] FormCreateRequest formRequest)
         {
-            if (string.IsNullOrEmpty(formRequest.FormType))
-            {
-                return BadRequest("FormType is required");
-            }
-
             var form = await _formService.CreateFormAsync(formRequest);
             return CreatedAtAction(nameof(GetForm), new { id = form.Id }, form);
         }
@@ -39,11 +34,6 @@ namespace FormSubmission.API.Controllers
         public async Task<IActionResult> GetForm(int id)
         {
             var form = await _formService.GetFormByIdAsync(id);
-            if (form == null)
-            {
-                return NotFound();
-            }
-
             return Ok(form);
         }
 
