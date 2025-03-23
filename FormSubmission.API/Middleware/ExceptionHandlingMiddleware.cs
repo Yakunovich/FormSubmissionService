@@ -34,7 +34,14 @@ namespace FormSubmission.API.Middleware
 
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            _logger.LogError(exception, "An unhandled exception occurred.");
+            _logger.LogError(
+                exception,
+                "Error processing request {Method} {Path} from {IP}. TraceId: {TraceId}",
+                context.Request.Method,
+                context.Request.Path,
+                context.Connection.RemoteIpAddress,
+                context.TraceIdentifier
+            );
 
             int statusCode = StatusCodes.Status500InternalServerError;
             string message = "An error occurred while processing your request.";
@@ -46,11 +53,25 @@ namespace FormSubmission.API.Middleware
                     statusCode = validationEx.StatusCode;
                     message = validationEx.Message;
                     errors = validationEx.Errors;
+                    
+                    _logger.LogWarning(
+                        "Validation error: {Message}. Details: {@ValidationErrors}. TraceId: {TraceId}",
+                        validationEx.Message,
+                        validationEx.Errors,
+                        context.TraceIdentifier
+                    );
                     break;
                     
                 case FormSubmissionException formEx:
                     statusCode = formEx.StatusCode;
                     message = formEx.Message;
+                    
+                    _logger.LogWarning(
+                        "Business error ({StatusCode}): {Message}. TraceId: {TraceId}",
+                        formEx.StatusCode,
+                        formEx.Message,
+                        context.TraceIdentifier
+                    );
                     break;
 
                 default:
@@ -58,6 +79,13 @@ namespace FormSubmission.API.Middleware
                     {
                         message = exception.Message;
                     }
+                    
+                    _logger.LogError(
+                        exception,
+                        "Unhandled exception: {ExceptionType}. TraceId: {TraceId}",
+                        exception.GetType().Name,
+                        context.TraceIdentifier
+                    );
                     break;
             }
 
