@@ -2,6 +2,43 @@
   <div class="submissions-container">
     <h2>Submitted Forms</h2>
     
+    <div class="search-panel">
+      <div class="search-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="formType">Form Type:</label>
+            <select id="formType" v-model="searchParams.formType">
+              <option value="">All types</option>
+              <option value="contactForm">Contact Form</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="searchTerm">Search:</label>
+            <input type="text" id="searchTerm" v-model="searchParams.searchTerm" 
+                   placeholder="Search form content">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fromDate">From date:</label>
+            <input type="date" id="fromDate" v-model="searchParams.fromDate">
+          </div>
+          
+          <div class="form-group">
+            <label for="toDate">To date:</label>
+            <input type="date" id="toDate" v-model="searchParams.toDate">
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button @click="searchSubmissions" class="search-button">Search</button>
+          <button @click="resetSearch" class="reset-button">Reset</button>
+        </div>
+      </div>
+    </div>
+    
     <div v-if="loading" class="loading">Loading...</div>
     
     <div v-else-if="submissions.length === 0" class="no-results">
@@ -43,6 +80,12 @@
         </tbody>
       </table>
     </div>
+    
+    <div class="pagination" v-if="submissions.length > 0">
+      <button @click="previousPage" :disabled="searchParams.page <= 1">Previous</button>
+      <span>Page {{ searchParams.page }}</span>
+      <button @click="nextPage">Next</button>
+    </div>
   </div>
 </template>
 
@@ -55,7 +98,15 @@ export default {
     return {
       submissions: [],
       expandedRows: [],
-      loading: false
+      loading: false,
+      searchParams: {
+        formType: '',
+        searchTerm: '',
+        fromDate: '',
+        toDate: '',
+        page: 1,
+        pageSize: 10
+      }
     };
   },
   created() {
@@ -66,26 +117,79 @@ export default {
       this.loading = true;
       
       try {
-        const response = await api.getSubmissions();
-        
-        if (response && response.data) {
-          if (Array.isArray(response.data)) {
-            this.submissions = response.data;
-          } else if (typeof response.data === 'object') {
-            if (Array.isArray(response.data.items)) {
-              this.submissions = response.data.items;
-            } else if (Array.isArray(response.data.results)) {
-              this.submissions = response.data.results;
-            } else if (Array.isArray(response.data.data)) {
-              this.submissions = response.data.data;
-            }
-          }
+        if (this.hasSearchParams()) {
+          const response = await api.searchSubmissions(this.searchParams);
+          this.processResponse(response);
+        } else {
+          const response = await api.getSubmissions();
+          this.processResponse(response);
         }
       } catch (error) {
         console.error('Error loading submissions:', error);
       } finally {
         this.loading = false;
       }
+    },
+    
+    processResponse(response) {
+      if (response && response.data) {
+        if (Array.isArray(response.data)) {
+          this.submissions = response.data.map(this.normalizeItem);
+        } else if (typeof response.data === 'object') {
+          if (Array.isArray(response.data.items)) {
+            this.submissions = response.data.items.map(this.normalizeItem);
+          } else if (Array.isArray(response.data.results)) {
+            this.submissions = response.data.results.map(this.normalizeItem);
+          } else if (Array.isArray(response.data.data)) {
+            this.submissions = response.data.data.map(this.normalizeItem);
+          }
+        }
+      }
+    },
+    
+    normalizeItem(item) {
+      return {
+        id: item.id || item.Id,
+        formType: item.formType || item.FormType,
+        formData: item.formData || item.FormData,
+        submittedAt: item.submittedAt || item.SubmittedAt
+      };
+    },
+    
+    hasSearchParams() {
+      return this.searchParams.formType || 
+             this.searchParams.searchTerm || 
+             this.searchParams.fromDate || 
+             this.searchParams.toDate;
+    },
+    
+    searchSubmissions() {
+      this.searchParams.page = 1;
+      this.loadSubmissions();
+    },
+    
+    resetSearch() {
+      this.searchParams = {
+        formType: '',
+        searchTerm: '',
+        fromDate: '',
+        toDate: '',
+        page: 1,
+        pageSize: 10
+      };
+      this.loadSubmissions();
+    },
+    
+    previousPage() {
+      if (this.searchParams.page > 1) {
+        this.searchParams.page--;
+        this.loadSubmissions();
+      }
+    },
+    
+    nextPage() {
+      this.searchParams.page++;
+      this.loadSubmissions();
     },
     
     toggleDetails(index) {
@@ -189,6 +293,76 @@ export default {
   padding: 20px;
 }
 
+.search-panel {
+  background-color: #f2f2f2;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.search-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #45a049;
+}
+
+.reset-button {
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reset-button:hover {
+  background-color: #e8e8e8;
+}
+
 .table-responsive {
   overflow-x: auto;
 }
@@ -249,21 +423,29 @@ export default {
   color: #333;
 }
 
-.field-value {
-  color: #555;
-  word-break: break-word;
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  align-items: center;
 }
 
-.data-json {
-  margin: 0;
-  padding: 10px;
-  white-space: pre-wrap;
-  font-size: 12px;
-  background-color: #f5f5f5;
+.pagination button {
+  padding: 5px 15px;
+  border: 1px solid #ddd;
+  background-color: #f8f8f8;
   border-radius: 4px;
-  max-height: 300px;
-  overflow-y: auto;
-  font-family: monospace;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #e8e8e8;
 }
 
 .loading {
@@ -278,7 +460,7 @@ export default {
   padding: 20px;
   font-size: 16px;
   color: #666;
-  background-color: #f9f9f9;
+  background-color: #f8f8f8;
   border-radius: 4px;
 }
 </style> 
