@@ -19,7 +19,7 @@ namespace FormSubmission.BLL.Services
             _logger = logger;
         }
 
-        public async Task<Form> CreateFormAsync(FormCreateRequest formRequest)
+        public async Task<Form> CreateAsync(FormCreateRequest formRequest)
         {
             _logger.LogInformation("Creating form of type {FormType}", formRequest.FormType);
             
@@ -42,7 +42,7 @@ namespace FormSubmission.BLL.Services
             return result;
         }
 
-        public async Task<IEnumerable<Form>> GetAllFormsAsync()
+        public async Task<IEnumerable<Form>> GetAllAsync()
         {
             _logger.LogInformation("Getting all forms");
             var forms = await _repository.GetAllAsync();
@@ -51,7 +51,7 @@ namespace FormSubmission.BLL.Services
             return forms;
         }
 
-        public async Task<Form> GetFormByIdAsync(int id)
+        public async Task<Form> GetByIdAsync(int id)
         {
             _logger.LogInformation("Requesting form with ID {FormId}", id);
             
@@ -67,7 +67,7 @@ namespace FormSubmission.BLL.Services
             return form;
         }
 
-        public async Task<IEnumerable<Form>> SearchFormsAsync(FormSearchRequest searchRequest)
+        public async Task<IEnumerable<Form>> SearchAsync(FormSearchRequest searchRequest)
         {
             _logger.LogInformation(
                 "Searching forms with parameters: Type={FormType}, Search={SearchTerm}, Page={Page}, Size={PageSize}", 

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FormSubmission.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/forms")]
     public class FormsController : ControllerBase
     {
         private readonly IFormService _formService;
@@ -17,30 +17,30 @@ namespace FormSubmission.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateForm([FromBody] FormCreateRequest formRequest)
+        public async Task<IActionResult> Create([FromBody] FormCreateRequest formRequest)
         {
-            var form = await _formService.CreateFormAsync(formRequest);
-            return CreatedAtAction(nameof(GetForm), new { id = form.Id }, form);
+            var form = await _formService.CreateAsync(formRequest);
+            return Ok(form);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllForms()
+        public async Task<IActionResult> GetAll()
         {
-            var forms = await _formService.GetAllFormsAsync();
+            var forms = await _formService.GetAllAsync();
             return Ok(forms);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetForm(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var form = await _formService.GetFormByIdAsync(id);
+            var form = await _formService.GetByIdAsync(id);
             return Ok(form);
         }
 
         [HttpPost("search")]
-        public async Task<IActionResult> SearchForms([FromBody] FormSearchRequest searchRequest)
+        public async Task<IActionResult> Search([FromBody] FormSearchRequest searchRequest)
         {
-            var forms = await _formService.SearchFormsAsync(searchRequest);
+            var forms = await _formService.SearchAsync(searchRequest);
             return Ok(forms);
         }
     }
